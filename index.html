@@ -8,6 +8,7 @@
     input, select, button { width: 100%; padding: 0.6rem; margin-top: 0.5rem; }
     .success { color: green; }
     .error { color: red; }
+    #description { font-style: italic; margin-top: 0.5rem; }
   </style>
 </head>
 <body>
@@ -21,6 +22,8 @@
   <option value="">Chargement...</option>
 </select>
 
+<p id="description"></p>
+
 <button id="submitBtn">Envoyer</button>
 
 <p id="message"></p>
@@ -30,16 +33,20 @@ const workerUrl = "https://workergrist.baptiste-petit.workers.dev/";
 
 const message = document.getElementById("message");
 const select = document.getElementById("choix");
+const description = document.getElementById("description");
 
+// On garde les enregistrements ici
+let recordsList = [];
 
 fetch(workerUrl)
   .then(res => res.json())
   .then(records => {
+    recordsList = records; // sauvegarde
     select.innerHTML = '<option value="">-- Choisissez une option --</option>';
     records.forEach(r => {
       const option = document.createElement("option");
-      option.value = r.fields.Titre;
-      option.textContent = r.fields.Titre;
+      option.value = r.fields.Titre;      // Nom à afficher / valeur
+      option.textContent = r.fields.Titre; 
       select.appendChild(option);
     });
   })
@@ -47,6 +54,22 @@ fetch(workerUrl)
     message.textContent = "❌ Impossible de charger la liste";
     message.className = "error";
   });
+
+// Affichage de la description quand le choix change
+select.addEventListener("change", () => {
+  const selected = select.value;
+  if (!selected) {
+    description.textContent = "";
+    return;
+  }
+
+  const record = recordsList.find(r => r.fields.Titre === selected);
+  if (record && record.fields.Description) {
+    description.textContent = record.fields.Description;
+  } else {
+    description.textContent = "";
+  }
+});
 
 // 🟢 Envoi du formulaire
 document.getElementById("submitBtn").addEventListener("click", async () => {
@@ -75,6 +98,7 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
       document.getElementById("nom").value = "";
       document.getElementById("email").value = "";
       document.getElementById("choix").value = "";
+      description.textContent = "";
     } else {
       message.textContent = "❌ Erreur : " + (result.error || "inconnue");
       message.className = "error";
