@@ -39,7 +39,7 @@ fetch(workerUrl)
     records.forEach(r => {
       const option = document.createElement("option");
       option.value = r.fields.Titre;
-      option.textContent = r.fields.Description;
+      option.textContent = r.fields.Titre;
       select.appendChild(option);
     });
   })
