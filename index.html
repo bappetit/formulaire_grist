@@ -4,12 +4,17 @@
   <meta charset="UTF-8">
   <title>Formulaire Grist</title>
   <style>
-    body { font-family: sans-serif; max-width: 400px; margin: 2rem auto; padding: 1rem; }
-    input, select, button { width: 100%; padding: 0.6rem; margin-top: 0.5rem; }
+    body { font-family: Arial, sans-serif; max-width: 500px; margin: 2rem auto; padding: 1rem; background: #f5f5f5; }
+    h3 { text-align: center; color: #333; }
+    form { background: #fff; padding: 1.5rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input, select, button { width: 100%; padding: 0.8rem; margin-top: 0.8rem; border-radius: 5px; border: 1px solid #ccc; }
+    input:focus, select:focus { border-color: #007bff; outline: none; }
+    button { background: #007bff; color: #fff; border: none; cursor: pointer; transition: 0.2s; }
+    button:hover { background: #0056b3; }
+    #description { font-style: italic; margin-top: 0.5rem; color: #555; }
     .success { color: green; }
     .error { color: red; }
-    #description { font-style: italic; margin-top: 0.5rem; }
-  </style>
+</style>
 </head>
 <body>
 
@@ -17,6 +22,7 @@
 
 <input id="nom" type="text" placeholder="Nom" required>
 <input id="email" type="email" placeholder="Email" required>
+<input id="numEtudiant" type="text" placeholder="Numéro étudiant" required>
 
 <select id="choix">
   <option value="">Chargement...</option>
@@ -83,6 +89,8 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
   const nom = document.getElementById("nom").value;
   const email = document.getElementById("email").value;
   const choix = document.getElementById("choix").value;
+  const numEtudiant = document.getElementById("numEtudiant").value;
+
 
   if (!nom || !email || !choix) {
     message.textContent = "❌ Remplissez tous les champs";
@@ -94,7 +102,7 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
     const res = await fetch(workerUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nom, email, choix })
+      body: JSON.stringify({ nom, email, choix, numEtudiant })
     });
 
     const result = await res.json();
