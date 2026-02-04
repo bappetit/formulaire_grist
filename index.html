@@ -31,15 +31,15 @@ const workerUrl = "https://workergrist.baptiste-petit.workers.dev/";
 const message = document.getElementById("message");
 const select = document.getElementById("choix");
 
-// 🔵 Charger la liste depuis Grist via le Worker
+
 fetch(workerUrl)
   .then(res => res.json())
   .then(records => {
     select.innerHTML = '<option value="">-- Choisissez une option --</option>';
     records.forEach(r => {
       const option = document.createElement("option");
-      option.value = r.fields.nom; // ou r.id si tu préfères
-      option.textContent = r.fields.nom;
+      option.value = r.fields.Titre;
+      option.textContent = r.fields.Description;
       select.appendChild(option);
     });
   })
