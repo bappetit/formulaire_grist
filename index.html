@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Formulaire Grist</title>
+  <style>
+    body { font-family: sans-serif; max-width: 400px; margin: 2rem auto; padding: 1rem; }
+    input, button { width: 100%; padding: 0.6rem; margin-top: 0.5rem; box-sizing: border-box; }
+    .success { color: green; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+
+  <h3>Soumettre vos informations</h3>
+
+  <input id="nom" type="text" placeholder="Nom" required>
+  <input id="email" type="email" placeholder="Email" required>
+  <button id="submitBtn">Envoyer</button>
+
+  <p id="message"></p>
+
+  <script>
+    const btn = document.getElementById("submitBtn");
+    const message = document.getElementById("message");
+
+    btn.addEventListener("click", async () => {
+      const nom = document.getElementById("nom").value;
+      const email = document.getElementById("email").value;
+
+      if (!nom || !email) {
+        message.textContent = "❌ Remplissez tous les champs";
+        message.className = "error";
+        return;
+      }
+
+      try {
+        const res = await fetch("https://workergrist.baptiste-petit.workers.dev/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ nom, email })
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          message.textContent = "✅ Données envoyées avec succès !";
+          message.className = "success";
+          document.getElementById("nom").value = "";
+          document.getElementById("email").value = "";
+        } else {
+          message.textContent = "❌ Erreur : " + (result.error || "inconnue");
+          message.className = "error";
+        }
+      } catch (err) {
+        message.textContent = "❌ Erreur réseau";
+        message.className = "error";
+      }
+    });
+  </script>
+
+</body>
+</html>
