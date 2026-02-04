@@ -45,11 +45,12 @@ fetch(workerUrl)
       .filter (r => {
         if (r.fields.Inscrits >= r.fields.Maximum ) return false; 
         if (r.fields.Passe_) return false; 
+        return true; 
       }); // sauvegarde
     
     select.innerHTML = '<option value="">-- Choisissez une option --</option>';
     
-    records.forEach(r => {
+    recordsList.forEach(r => {
       const option = document.createElement("option");
       option.value = r.fields.Titre;      // Nom à afficher / valeur
       option.textContent = r.fields.Titre; 
