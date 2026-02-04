@@ -41,8 +41,14 @@ let recordsList = [];
 fetch(workerUrl)
   .then(res => res.json())
   .then(records => {
-    recordsList = records; // sauvegarde
+    recordsList = records
+      .filter (r => {
+        if (r.fields.Inscrits >= r.fields.Maximum ) return false; 
+        if (r.fields.Passe_) return false; 
+      }); // sauvegarde
+    
     select.innerHTML = '<option value="">-- Choisissez une option --</option>';
+    
     records.forEach(r => {
       const option = document.createElement("option");
       option.value = r.fields.Titre;      // Nom à afficher / valeur
