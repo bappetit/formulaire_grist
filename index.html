@@ -5,61 +5,86 @@
   <title>Formulaire Grist</title>
   <style>
     body { font-family: sans-serif; max-width: 400px; margin: 2rem auto; padding: 1rem; }
-    input, button { width: 100%; padding: 0.6rem; margin-top: 0.5rem; box-sizing: border-box; }
+    input, select, button { width: 100%; padding: 0.6rem; margin-top: 0.5rem; }
     .success { color: green; }
     .error { color: red; }
   </style>
 </head>
 <body>
 
-  <h3>Soumettre vos informations</h3>
+<h3>Soumettre vos informations</h3>
 
-  <input id="nom" type="text" placeholder="Nom" required>
-  <input id="email" type="email" placeholder="Email" required>
-  <button id="submitBtn">Envoyer</button>
+<input id="nom" type="text" placeholder="Nom" required>
+<input id="email" type="email" placeholder="Email" required>
 
-  <p id="message"></p>
+<select id="choix">
+  <option value="">Chargement...</option>
+</select>
 
-  <script>
-    const btn = document.getElementById("submitBtn");
-    const message = document.getElementById("message");
+<button id="submitBtn">Envoyer</button>
 
-    btn.addEventListener("click", async () => {
-      const nom = document.getElementById("nom").value;
-      const email = document.getElementById("email").value;
+<p id="message"></p>
 
-      if (!nom || !email) {
-        message.textContent = "❌ Remplissez tous les champs";
-        message.className = "error";
-        return;
-      }
+<script>
+const workerUrl = "https://workergrist.baptiste-petit.workers.dev/";
 
-      try {
-        const res = await fetch("https://workergrist.baptiste-petit.workers.dev/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ nom, email })
-        });
+const message = document.getElementById("message");
+const select = document.getElementById("choix");
 
-        const result = await res.json();
-
-        if (res.ok) {
-          message.textContent = "✅ Données envoyées avec succès !";
-          message.className = "success";
-          document.getElementById("nom").value = "";
-          document.getElementById("email").value = "";
-        } else {
-          message.textContent = "❌ Erreur : " + (result.error || "inconnue");
-          message.className = "error";
-        }
-      } catch (err) {
-        message.textContent = "❌ Erreur réseau";
-        message.className = "error";
-      }
+// 🔵 Charger la liste depuis Grist via le Worker
+fetch(workerUrl)
+  .then(res => res.json())
+  .then(records => {
+    select.innerHTML = '<option value="">-- Choisissez une option --</option>';
+    records.forEach(r => {
+      const option = document.createElement("option");
+      option.value = r.fields.nom; // ou r.id si tu préfères
+      option.textContent = r.fields.nom;
+      select.appendChild(option);
     });
-  </script>
+  })
+  .catch(err => {
+    message.textContent = "❌ Impossible de charger la liste";
+    message.className = "error";
+  });
+
+// 🟢 Envoi du formulaire
+document.getElementById("submitBtn").addEventListener("click", async () => {
+  const nom = document.getElementById("nom").value;
+  const email = document.getElementById("email").value;
+  const choix = document.getElementById("choix").value;
+
+  if (!nom || !email || !choix) {
+    message.textContent = "❌ Remplissez tous les champs";
+    message.className = "error";
+    return;
+  }
+
+  try {
+    const res = await fetch(workerUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nom, email, choix })
+    });
+
+    const result = await res.json();
+
+    if (res.ok) {
+      message.textContent = "✅ Données envoyées avec succès !";
+      message.className = "success";
+      document.getElementById("nom").value = "";
+      document.getElementById("email").value = "";
+      document.getElementById("choix").value = "";
+    } else {
+      message.textContent = "❌ Erreur : " + (result.error || "inconnue");
+      message.className = "error";
+    }
+  } catch (err) {
+    message.textContent = "❌ Erreur réseau";
+    message.className = "error";
+  }
+});
+</script>
 
 </body>
 </html>
